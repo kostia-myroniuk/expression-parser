@@ -1,0 +1,15 @@
+C:\Users\mur\source\repos\ExpressionParser\ExpressionParser\bin\Debug\net6.0\ExpressionParser.exe
+C:\Users\mur\source\repos\ExpressionParser\ExpressionParser\bin\Debug\net6.0\ExpressionParser.deps.json
+C:\Users\mur\source\repos\ExpressionParser\ExpressionParser\bin\Debug\net6.0\ExpressionParser.runtimeconfig.json
+C:\Users\mur\source\repos\ExpressionParser\ExpressionParser\bin\Debug\net6.0\ExpressionParser.dll
+C:\Users\mur\source\repos\ExpressionParser\ExpressionParser\bin\Debug\net6.0\ExpressionParser.pdb
+C:\Users\mur\source\repos\ExpressionParser\ExpressionParser\obj\Debug\net6.0\ExpressionParser.csproj.AssemblyReference.cache
+C:\Users\mur\source\repos\ExpressionParser\ExpressionParser\obj\Debug\net6.0\ExpressionParser.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\mur\source\repos\ExpressionParser\ExpressionParser\obj\Debug\net6.0\ExpressionParser.AssemblyInfoInputs.cache
+C:\Users\mur\source\repos\ExpressionParser\ExpressionParser\obj\Debug\net6.0\ExpressionParser.AssemblyInfo.cs
+C:\Users\mur\source\repos\ExpressionParser\ExpressionParser\obj\Debug\net6.0\ExpressionParser.csproj.CoreCompileInputs.cache
+C:\Users\mur\source\repos\ExpressionParser\ExpressionParser\obj\Debug\net6.0\ExpressionParser.dll
+C:\Users\mur\source\repos\ExpressionParser\ExpressionParser\obj\Debug\net6.0\refint\ExpressionParser.dll
+C:\Users\mur\source\repos\ExpressionParser\ExpressionParser\obj\Debug\net6.0\ExpressionParser.pdb
+C:\Users\mur\source\repos\ExpressionParser\ExpressionParser\obj\Debug\net6.0\ExpressionParser.genruntimeconfig.cache
+C:\Users\mur\source\repos\ExpressionParser\ExpressionParser\obj\Debug\net6.0\ref\ExpressionParser.dll

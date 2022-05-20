@@ -9,6 +9,6 @@ namespace ExpressionParser.Operators
     public interface IOperator
     {
         public int Priority { get; }
-        public Operand Execute(Operand operand1, Operand operand2);
+        public Operand Evaluate(Operand operand1, Operand operand2);
     }
 }

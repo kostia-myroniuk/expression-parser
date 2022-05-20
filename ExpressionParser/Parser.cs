@@ -17,18 +17,6 @@ namespace ExpressionParser
             this.expression = expression;
         }
 
-        private void EvaluateTopOperands(Stack<Operand> operandStack, Stack<Token> evaluationStack, IOperator? topOperator)
-        {
-            if (operandStack.Count >= 2 && topOperator != null)
-            {
-                Operand operand2 = operandStack.Pop();
-                Operand operand1 = operandStack.Pop();
-                evaluationStack.Pop();
-
-                operandStack.Push(topOperator.Execute(operand1, operand2));
-            }
-        }
-
         public Operand? EvaluateExpression()
         {
             Stack<Operand> operandStack = new Stack<Operand>();
@@ -68,7 +56,11 @@ namespace ExpressionParser
                             break;
                         }
 
-                        EvaluateTopOperands(operandStack, evaluationStack, stackOperator);
+                        bool evalutaionSuccessful = EvaluateTopOperands(operandStack, evaluationStack, stackOperator);
+                        if (!evalutaionSuccessful)
+                        {
+                            return null;
+                        }
                     }
 
                     if (evaluationStack.Count == 0)
@@ -93,8 +85,11 @@ namespace ExpressionParser
                         }
 
                         IOperator? stackOperator = factory.CreateOperator(evaluationStack.Peek());
-
-                        EvaluateTopOperands(operandStack, evaluationStack, stackOperator);
+                        bool evalutaionSuccessful = EvaluateTopOperands(operandStack, evaluationStack, stackOperator);
+                        if (!evalutaionSuccessful)
+                        {
+                            return null;
+                        }
                     }
                 }
             }
@@ -102,8 +97,11 @@ namespace ExpressionParser
             while (evaluationStack.Count != 0)
             {
                 IOperator? stackOperator = factory.CreateOperator(evaluationStack.Peek());
-
-                EvaluateTopOperands(operandStack, evaluationStack, stackOperator);
+                bool evalutaionSuccessful = EvaluateTopOperands(operandStack, evaluationStack, stackOperator);
+                if (!evalutaionSuccessful)
+                {
+                    return null;
+                }
             }
 
             if (evaluationStack.Count == 0 && operandStack.Count == 1)
@@ -112,6 +110,21 @@ namespace ExpressionParser
             }
 
             return null;
+        }
+
+        private bool EvaluateTopOperands(Stack<Operand> operandStack, Stack<Token> evaluationStack, IOperator? topOperator)
+        {
+            if (operandStack.Count >= 2 && topOperator != null)
+            {
+                Operand operand2 = operandStack.Pop();
+                Operand operand1 = operandStack.Pop();
+                evaluationStack.Pop();
+
+                operandStack.Push(topOperator.Evaluate(operand1, operand2));
+                return true;
+            }
+
+            return false;
         }
     }
 }

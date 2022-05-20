@@ -10,7 +10,7 @@ namespace ExpressionParser.Operators
     {
         public int Priority => 2;
 
-        public Operand Execute(Operand operand1, Operand operand2)
+        public Operand Evaluate(Operand operand1, Operand operand2)
         {
             return new Operand(operand1.Value / operand2.Value);
         }

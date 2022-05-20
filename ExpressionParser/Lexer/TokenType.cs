@@ -2,9 +2,6 @@
 {
     public enum TokenType
     {
-        WhiteSpace,
-        UnknownCharacter,
-        EndOfInput,
         Number,
         Operator,
         OpenBracket,

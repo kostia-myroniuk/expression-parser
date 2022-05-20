@@ -40,6 +40,8 @@ namespace ExpressionParser.Lexer
 
         public void PrintTokens()
         {
+            Console.WriteLine("Lexer tokens:");
+
             foreach (var token in Tokens)
             {
                 Console.WriteLine(token);

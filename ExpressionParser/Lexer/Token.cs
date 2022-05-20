@@ -1,4 +1,4 @@
-﻿namespace ExpressionParser
+﻿namespace ExpressionParser.Lexer
 {
     public class Token
     {

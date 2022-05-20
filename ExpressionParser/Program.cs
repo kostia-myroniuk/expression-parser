@@ -1,13 +1,19 @@
 ﻿using ExpressionParser;
+using ExpressionParser.Lexer;
 
-string expression = "215 + 10 + 34 * (2 /  3)-4 #$%f";
+string expression = "30 - (2 ^ 3 + 1)";
 
 Console.WriteLine(expression);
 
-ExpressionTokenizer tokenizer = new ExpressionTokenizer(expression);
-tokenizer.Tokenize();
+Lexer lexer = new Lexer(expression);
+List<Token> tokens = lexer.GetAllTokens();
 
-foreach (var token in tokenizer.Tokens)
+lexer.PrintTokens();
+
+Parser parser = new Parser(tokens);
+
+Operand? result = parser.EvaluateExpression();
+if (result != null)
 {
-    Console.WriteLine(token);
+    Console.WriteLine(result.Value);
 }

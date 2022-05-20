@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ExpressionParser
+namespace ExpressionParser.Operators
 {
-    public interface IOperation
+    public interface IOperator
     {
         public int Priority { get; }
-        public int Execute();
+        public Operand Execute(Operand operand1, Operand operand2);
     }
 }

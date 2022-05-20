@@ -8,123 +8,161 @@ using System.Threading.Tasks;
 
 namespace ExpressionParser
 {
+    class ParserException : Exception
+    {
+        public ParserException(string message)
+        : base(message) { }
+    }
+
     public class Parser
     {
         private List<Token> expression;
+        private readonly Dictionary<string, IOperator> tokenValueOperators =
+            new Dictionary<string, IOperator>()
+            {
+                { "+", new AdditionOperator() },
+                { "-", new SubtractionOperator() },
+                { "/", new DivisionOperator() },
+                { "*", new MultiplicationOperator() },
+                { "^", new ExponentiationOperator() }
+            };
 
         public Parser(List<Token> expression)
         {
             this.expression = expression;
         }
 
-        public Operand? EvaluateExpression()
+        public Operand EvaluateExpression()
         {
+            if (!TokenValuesHaveOperators() || !BracketsAreValid())
+            {
+                throw new ParserException("Bad expression");
+            }
+
             Stack<Operand> operandStack = new Stack<Operand>();
             Stack<Token> evaluationStack = new Stack<Token>();
 
-            OperatorFactory factory = new OperatorFactory();
-
             foreach (Token expressionToken in expression)
             {
-                if (expressionToken.TokenType == TokenType.Number)
+                switch (expressionToken.TokenType)
                 {
-                    operandStack.Push(new Operand(expressionToken.Value));
-                }
+                    case TokenType.Number:
+                        operandStack.Push(new Operand(expressionToken.Value));
+                        break;
 
-                else if (expressionToken.TokenType == TokenType.Operator)
-                {
-                    if (evaluationStack.Count == 0)
-                    {
-                        evaluationStack.Push(expressionToken);
-                        continue;
-                    }
+                    case TokenType.Operator:
+                        IOperator expressionOperator = tokenValueOperators[expressionToken.Value];
 
-                    IOperator? expressionOperator = factory.CreateOperator(expressionToken);
+                        while (evaluationStack.Count != 0)
+                        {
+                            if  (evaluationStack.Peek().TokenType == TokenType.OpenBracket ||
+                                evaluationStack.Peek().TokenType == TokenType.ClosingBracket)
+                            {
+                                evaluationStack.Push(expressionToken);
+                                break;
+                            }
 
-                    if (expressionOperator == null)
-                    {
-                        continue;
-                    }
+                            IOperator stackOperator = tokenValueOperators[evaluationStack.Peek().Value];
+                            
+                            if (expressionOperator.Priority >= stackOperator.Priority)
+                            {
+                                evaluationStack.Push(expressionToken);
+                                break;
+                            }
 
-                    while (evaluationStack.Count != 0)
-                    {
-                        IOperator? stackOperator = factory.CreateOperator(evaluationStack.Peek());
+                            EvaluateTopOperands(operandStack, evaluationStack, stackOperator);
+                        }
 
-                        if (stackOperator == null || expressionOperator.Priority >= stackOperator.Priority)
+                        if (evaluationStack.Count == 0)
                         {
                             evaluationStack.Push(expressionToken);
-                            break;
                         }
 
-                        bool evalutaionSuccessful = EvaluateTopOperands(operandStack, evaluationStack, stackOperator);
-                        if (!evalutaionSuccessful)
-                        {
-                            return null;
-                        }
-                    }
+                        break;
 
-                    if (evaluationStack.Count == 0)
-                    {
+                    case TokenType.OpenBracket:
                         evaluationStack.Push(expressionToken);
-                    }
-                }
-            
-                else if (expressionToken.TokenType == TokenType.OpenBracket)
-                {
-                    evaluationStack.Push(expressionToken);
-                }
+                        break;
 
-                else if (expressionToken.TokenType == TokenType.ClosingBracket)
-                {
-                    while (evaluationStack.Count != 0)
-                    {
-                        if (evaluationStack.Peek().TokenType == TokenType.OpenBracket)
+                    case TokenType.ClosingBracket:
+                        while (evaluationStack.Count != 0)
                         {
-                            evaluationStack.Pop();
-                            break;
+                            if (evaluationStack.Peek().TokenType == TokenType.OpenBracket)
+                            {
+                                evaluationStack.Pop();
+                                break;
+                            }
+
+                            IOperator stackOperator = tokenValueOperators[evaluationStack.Peek().Value];
+                            EvaluateTopOperands(operandStack, evaluationStack, stackOperator);
                         }
 
-                        IOperator? stackOperator = factory.CreateOperator(evaluationStack.Peek());
-                        bool evalutaionSuccessful = EvaluateTopOperands(operandStack, evaluationStack, stackOperator);
-                        if (!evalutaionSuccessful)
-                        {
-                            return null;
-                        }
-                    }
+                        break;
                 }
             }
 
             while (evaluationStack.Count != 0)
             {
-                IOperator? stackOperator = factory.CreateOperator(evaluationStack.Peek());
-                bool evalutaionSuccessful = EvaluateTopOperands(operandStack, evaluationStack, stackOperator);
-                if (!evalutaionSuccessful)
+                IOperator stackOperator = tokenValueOperators[evaluationStack.Peek().Value];
+                EvaluateTopOperands(operandStack, evaluationStack, stackOperator);
+            }
+
+            if (evaluationStack.Count != 0 || operandStack.Count != 1)
+            {
+                throw new ParserException("Bad expression");
+            }
+            
+            return operandStack.Peek();
+        }
+
+        private void EvaluateTopOperands(Stack<Operand> operandStack, Stack<Token> evaluationStack, IOperator topOperator)
+        {
+            if (operandStack.Count < 2)
+            {
+                throw new ParserException("Bad expression");
+            }
+
+            Operand operand2 = operandStack.Pop();
+            Operand operand1 = operandStack.Pop();
+            evaluationStack.Pop();
+            operandStack.Push(topOperator.Evaluate(operand1, operand2));
+        }
+
+        private bool TokenValuesHaveOperators()
+        {
+            foreach (Token expressionToken in expression)
+            {
+                if (expressionToken.TokenType == TokenType.Operator &&
+                    !tokenValueOperators.ContainsKey(expressionToken.Value))
                 {
-                    return null;
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private bool BracketsAreValid()
+        {
+            int counter = 0;
+
+            foreach (Token expressionToken in expression)
+            {
+                if (expressionToken.TokenType == TokenType.OpenBracket)
+                {
+                    counter++;
+                }
+                else if (expressionToken.TokenType == TokenType.ClosingBracket)
+                {
+                    counter--;
+                }
+
+                if (counter < 0)
+                {
+                    return false;
                 }
             }
 
-            if (evaluationStack.Count == 0 && operandStack.Count == 1)
-            {
-                return operandStack.Peek();
-            }
-
-            return null;
-        }
-
-        private bool EvaluateTopOperands(Stack<Operand> operandStack, Stack<Token> evaluationStack, IOperator? topOperator)
-        {
-            if (operandStack.Count >= 2 && topOperator != null)
-            {
-                Operand operand2 = operandStack.Pop();
-                Operand operand1 = operandStack.Pop();
-                evaluationStack.Pop();
-
-                operandStack.Push(topOperator.Evaluate(operand1, operand2));
-                return true;
-            }
-
-            return false;
+            return counter == 0;
         }
     }
 }

@@ -11,9 +11,16 @@ namespace ExpressionParser.Lexer
         private readonly string expression;
         private int position;
 
-        private readonly List<char> operatorCharacters =
-            new List<char> {
-                '+', '-', '*', '/', '^'
+        private readonly Dictionary<char, TokenType> characterTokenTypes =
+            new Dictionary<char, TokenType>()
+            {
+                { '+', TokenType.Operator },
+                { '-', TokenType.Operator },
+                { '*', TokenType.Operator },
+                { '/', TokenType.Operator },
+                { '^', TokenType.Operator },
+                { '(', TokenType.OpenBracket },
+                { ')', TokenType.ClosingBracket }
             };
 
         public List<Token> Tokens { get; private set; } = new List<Token>();
@@ -38,16 +45,6 @@ namespace ExpressionParser.Lexer
             return Tokens;
         }
 
-        public void PrintTokens()
-        {
-            Console.WriteLine("Lexer tokens:");
-
-            foreach (var token in Tokens)
-            {
-                Console.WriteLine(token);
-            }
-        }
-
         private void IncrementPosition()
         {
             position++;
@@ -70,22 +67,10 @@ namespace ExpressionParser.Lexer
                     return new Token(TokenType.Number, tokenValue);
                 }
 
-                else if (operatorCharacters.Contains(currentCharacter))
+                else if (characterTokenTypes.ContainsKey(currentCharacter))
                 {
                     IncrementPosition();
-                    return new Token(TokenType.Operator, currentCharacter.ToString());
-                }
-
-                else if (currentCharacter == '(')
-                {
-                    IncrementPosition();
-                    return new Token(TokenType.OpenBracket, currentCharacter.ToString());
-                }
-
-                else if (currentCharacter == ')')
-                {
-                    IncrementPosition();
-                    return new Token(TokenType.ClosingBracket, currentCharacter.ToString());
+                    return new Token(characterTokenTypes[currentCharacter], currentCharacter.ToString());
                 }
 
                 IncrementPosition();

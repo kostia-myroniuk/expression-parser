@@ -31,6 +31,7 @@ namespace ExpressionParser.Operators
             }
 
             return null;
+            // fun<double,double,double> = (a,b)=>a - a
         }
     }
 }

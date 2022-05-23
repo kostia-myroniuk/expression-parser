@@ -64,7 +64,7 @@ namespace ExpressionParser.Lexer
                         tokenValue += expression[position];
                         IncrementPosition();
                     }
-                    return new Token(TokenType.Number, tokenValue);
+                    return new Token(TokenType.Operand, tokenValue);
                 }
 
                 else if (characterTokenTypes.ContainsKey(currentCharacter))

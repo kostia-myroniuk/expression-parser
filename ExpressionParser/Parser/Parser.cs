@@ -6,25 +6,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ExpressionParser
+namespace ExpressionParser.Parser
 {
-    class ParserException : Exception
-    {
-        public ParserException(string message)
-        : base(message) { }
-    }
-
     public class Parser
     {
         private List<Token> expression;
-        private readonly Dictionary<string, IOperator> tokenValueOperators =
-            new Dictionary<string, IOperator>()
+        private readonly Dictionary<string, Func<IOperator>> tokenValueOperators =
+            new Dictionary<string, Func<IOperator>>()
             {
-                { "+", new AdditionOperator() },
-                { "-", new SubtractionOperator() },
-                { "/", new DivisionOperator() },
-                { "*", new MultiplicationOperator() },
-                { "^", new ExponentiationOperator() }
+                { "+", () => new AdditionOperator() },
+                { "-", () => new SubtractionOperator() },
+                { "/", () => new DivisionOperator() },
+                { "*", () => new MultiplicationOperator() },
+                { "^", () => new ExponentiationOperator() }
             };
 
         public Parser(List<Token> expression)
@@ -46,24 +40,24 @@ namespace ExpressionParser
             {
                 switch (expressionToken.TokenType)
                 {
-                    case TokenType.Number:
+                    case TokenType.Operand:
                         operandStack.Push(new Operand(expressionToken.Value));
                         break;
 
                     case TokenType.Operator:
-                        IOperator expressionOperator = tokenValueOperators[expressionToken.Value];
+                        IOperator expressionOperator = tokenValueOperators[expressionToken.Value]();
 
                         while (evaluationStack.Count != 0)
                         {
-                            if  (evaluationStack.Peek().TokenType == TokenType.OpenBracket ||
+                            if (evaluationStack.Peek().TokenType == TokenType.OpenBracket ||
                                 evaluationStack.Peek().TokenType == TokenType.ClosingBracket)
                             {
                                 evaluationStack.Push(expressionToken);
                                 break;
                             }
 
-                            IOperator stackOperator = tokenValueOperators[evaluationStack.Peek().Value];
-                            
+                            IOperator stackOperator = tokenValueOperators[evaluationStack.Peek().Value]();
+
                             if (expressionOperator.Priority >= stackOperator.Priority)
                             {
                                 evaluationStack.Push(expressionToken);
@@ -93,7 +87,7 @@ namespace ExpressionParser
                                 break;
                             }
 
-                            IOperator stackOperator = tokenValueOperators[evaluationStack.Peek().Value];
+                            IOperator stackOperator = tokenValueOperators[evaluationStack.Peek().Value]();
                             EvaluateTopOperands(operandStack, evaluationStack, stackOperator);
                         }
 
@@ -103,7 +97,7 @@ namespace ExpressionParser
 
             while (evaluationStack.Count != 0)
             {
-                IOperator stackOperator = tokenValueOperators[evaluationStack.Peek().Value];
+                IOperator stackOperator = tokenValueOperators[evaluationStack.Peek().Value]();
                 EvaluateTopOperands(operandStack, evaluationStack, stackOperator);
             }
 
@@ -111,7 +105,7 @@ namespace ExpressionParser
             {
                 throw new ParserException("Bad expression");
             }
-            
+
             return operandStack.Peek();
         }
 

@@ -2,7 +2,7 @@
 {
     public enum TokenType
     {
-        Number,
+        Operand,
         Operator,
         OpenBracket,
         ClosingBracket
